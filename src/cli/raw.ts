@@ -155,12 +155,74 @@ export const runRailwayArgsCommand = async (
 	});
 };
 
+export const splitCommandArgs = (command: string): string[] => {
+	const args: string[] = [];
+	let current = "";
+	let quote: '"' | "'" | null = null;
+	let escapeNext = false;
+
+	for (let index = 0; index < command.length; index++) {
+		const char = command[index];
+
+		if (escapeNext) {
+			current += char;
+			escapeNext = false;
+			continue;
+		}
+
+		if (quote === null) {
+			if (char === "\\" || char === "`") {
+				escapeNext = true;
+				continue;
+			}
+
+			if (char === "'" || char === '"') {
+				quote = char;
+				continue;
+			}
+
+			if (/\s/.test(char)) {
+				if (current.length > 0) {
+					args.push(current);
+					current = "";
+				}
+				continue;
+			}
+
+			current += char;
+			continue;
+		}
+
+		if (char === quote) {
+			quote = null;
+			continue;
+		}
+
+		if (quote === '"' && char === "\\") {
+			const next = command[index + 1];
+			if (next !== undefined) {
+				current += next;
+				index += 1;
+				continue;
+			}
+		}
+
+		current += char;
+	}
+
+	if (escapeNext) {
+		current += "\\";
+	}
+
+	if (current.length > 0) {
+		args.push(current);
+	}
+
+	return args;
+};
+
 export const normalizeRailwayCommand = (command: string): string[] => {
-	const parts = command
-		.trim()
-		.split(/\s+/)
-		.map((part) => part.trim())
-		.filter(Boolean);
+	const parts = splitCommandArgs(command.trim());
 
 	if (parts[0]?.toLowerCase() === "railway") {
 		return parts.slice(1);

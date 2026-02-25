@@ -1,12 +1,18 @@
-import { exec } from "node:child_process";
-import { promisify } from "node:util";
 import { analyzeRailwayError } from "./error-handling";
-
-const execAsync = promisify(exec);
+import { normalizeRailwayCommand, runRailwayArgsCommand } from "./raw";
 
 export const runRailwayCommand = async (command: string, cwd?: string) => {
-	const { stdout, stderr } = await execAsync(command, { cwd });
-	return { stdout, stderr, output: stdout + stderr };
+	const args = normalizeRailwayCommand(command);
+	if (args.length === 0) {
+		throw new Error("Railway command is empty");
+	}
+
+	const result = await runRailwayArgsCommand(args, { cwd });
+	return {
+		stdout: result.stdout,
+		stderr: result.stderr,
+		output: result.output,
+	};
 };
 
 export const runRailwayJsonCommand = async (command: string, cwd?: string) => {
