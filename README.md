@@ -1,6 +1,6 @@
 # Railway MCP SSE (GitHub-ready)
 
-This repository deploys an authenticated public SSE endpoint for Railway MCP on Railway.
+This repository deploys a public SSE endpoint for Railway MCP on Railway.
 
 It includes:
 - A vendored local copy of `railway-mcp-server` with custom enhancements.
@@ -34,6 +34,7 @@ Optional:
 
 ## Security notes
 
+- `/sse` is public in this setup (no client header required at the edge).
 - `run-railway-command` can execute any Railway CLI command.
 - Treat this deployment as privileged infrastructure access.
 - Rotate `RAILWAY_API_TOKEN` and `MCP_PROXY_API_KEY` regularly.
