@@ -55,14 +55,20 @@ export const runRailwayArgsCommand = async (
 	args: string[],
 	options: RunRailwayArgsOptions = {},
 ): Promise<RailwayCommandResult> => {
-	const {
-		cwd,
-		timeoutMs = 120_000,
-		allowNonZeroExit = false,
-	} = options;
+	const { cwd, timeoutMs = 120_000, allowNonZeroExit = false } = options;
 
 	const normalizedArgs = args.filter(Boolean);
 	const command = `railway ${normalizedArgs.join(" ")}`.trim();
+	const spawnTarget =
+		process.platform === "win32"
+			? {
+					command: process.env.ComSpec || "cmd.exe",
+					args: ["/d", "/s", "/c", "railway", ...normalizedArgs],
+				}
+			: {
+					command: "railway",
+					args: normalizedArgs,
+				};
 
 	return new Promise<RailwayCommandResult>((resolve, reject) => {
 		const start = Date.now();
@@ -70,7 +76,7 @@ export const runRailwayArgsCommand = async (
 		let stderr = "";
 		let timedOut = false;
 
-		const child = spawn("railway", normalizedArgs, {
+		const child = spawn(spawnTarget.command, spawnTarget.args, {
 			cwd,
 			env: process.env,
 			shell: false,

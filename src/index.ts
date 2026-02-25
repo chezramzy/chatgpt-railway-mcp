@@ -1,6 +1,10 @@
 #!/usr/bin/env node
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import {
+	McpServer,
+	type ToolCallback,
+} from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import type { ZodRawShape } from "zod";
 import * as tools from "./tools";
 import { getVersion } from "./utils";
 
@@ -8,8 +12,8 @@ type ToolDefinition = {
 	name: string;
 	title: string;
 	description: string;
-	inputSchema: Record<string, unknown>;
-	handler: (...args: any[]) => Promise<unknown> | unknown;
+	inputSchema: ZodRawShape;
+	handler: ToolCallback<ZodRawShape>;
 };
 
 const startServer = async () => {
@@ -34,9 +38,9 @@ const startServer = async () => {
 			{
 				title: tool.title,
 				description: tool.description,
-				inputSchema: tool.inputSchema as any,
+				inputSchema: tool.inputSchema,
 			},
-			tool.handler as any,
+			tool.handler,
 		);
 	});
 

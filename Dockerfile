@@ -4,13 +4,11 @@ RUN npm install -g mcp-proxy @railway/cli && corepack enable
 
 WORKDIR /app
 
-COPY railway-mcp-server /app/railway-mcp-server
-RUN cd /app/railway-mcp-server && pnpm install --frozen-lockfile && pnpm build
-
-COPY proxy-entrypoint.mjs /app/proxy-entrypoint.mjs
+COPY . /app
+RUN pnpm install --frozen-lockfile && pnpm build
 
 ENV PORT=8000
-ENV MCP_SERVER_COMMAND="node /app/railway-mcp-server/dist/index.js"
+ENV MCP_SERVER_COMMAND="node /app/dist/index.js"
 
 EXPOSE 8000
 

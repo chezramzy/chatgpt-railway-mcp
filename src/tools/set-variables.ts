@@ -43,7 +43,12 @@ export const setVariablesTool = {
 				skipDeploys,
 			});
 
-			return createToolResponse(result);
+			const normalized = result.trim();
+			return createToolResponse(
+				normalized.length > 0
+					? normalized
+					: "Variables updated successfully. Railway CLI returned no additional output.",
+			);
 		} catch (error: unknown) {
 			const errorMessage =
 				error instanceof Error ? error.message : "Unknown error occurred";

@@ -67,7 +67,9 @@ export const getRailwayCliCatalog = async ({
 	timeoutMs?: number;
 } = {}): Promise<RailwayCliCatalog> => {
 	const rootHelp = await runRailwayArgsCommand(["--help"], { timeoutMs });
-	const rootCommands = parseCommandsFromHelp(rootHelp.stdout || rootHelp.output);
+	const rootCommands = parseCommandsFromHelp(
+		rootHelp.stdout || rootHelp.output,
+	);
 
 	const entries: RailwayCliCommandEntry[] = [];
 	const visited = new Set<string>();
@@ -113,7 +115,9 @@ export const getRailwayCliCatalog = async ({
 					timeoutMs,
 				},
 			);
-			const children = parseCommandsFromHelp(helpOutput.stdout || helpOutput.output);
+			const children = parseCommandsFromHelp(
+				helpOutput.stdout || helpOutput.output,
+			);
 
 			for (const child of children) {
 				queue.push({

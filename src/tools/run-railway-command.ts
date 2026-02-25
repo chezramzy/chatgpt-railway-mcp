@@ -1,8 +1,5 @@
 import z from "zod";
-import {
-	normalizeRailwayCommand,
-	runRailwayArgsCommand,
-} from "../cli";
+import { normalizeRailwayCommand, runRailwayArgsCommand } from "../cli";
 import { RailwayCommandError } from "../cli/raw";
 import { createToolResponse } from "../utils";
 
@@ -35,7 +32,9 @@ export const runRailwayCommandTool = {
 		workspacePath: z
 			.string()
 			.optional()
-			.describe("Working directory for the CLI command. Default: current directory."),
+			.describe(
+				"Working directory for the CLI command. Default: current directory.",
+			),
 		timeoutMs: z
 			.number()
 			.int()
@@ -141,11 +140,7 @@ export const runRailwayCommandTool = {
 				error instanceof Error ? error.message : "Unknown error occurred";
 
 			return createToolResponse(
-				[
-					"Railway command failed.",
-					"",
-					`Error: ${errorMessage}`,
-				].join("\n"),
+				["Railway command failed.", "", `Error: ${errorMessage}`].join("\n"),
 			);
 		}
 	},
