@@ -1,9 +1,60 @@
 import http from "node:http";
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
+import { mkdirSync } from "node:fs";
 
 const publicPort = Number(process.env.PORT || 8000);
 const upstreamPort = Number(process.env.UPSTREAM_PORT || 8081);
 const apiKey = process.env.MCP_PROXY_API_KEY || "";
+const railwayProjectId = process.env.RAILWAY_PROJECT_ID || "";
+const railwayEnvironmentId = process.env.RAILWAY_ENVIRONMENT_ID || "";
+const railwayServiceId = process.env.RAILWAY_SERVICE_ID || "";
+
+function ensureRailwayLink(cwd) {
+	if (!railwayProjectId) {
+		return;
+	}
+
+	const args = ["link", "--project", railwayProjectId, "--json"];
+	if (railwayEnvironmentId) {
+		args.push("--environment", railwayEnvironmentId);
+	}
+	if (railwayServiceId) {
+		args.push("--service", railwayServiceId);
+	}
+
+	const result = spawnSync("railway", args, {
+		cwd,
+		env: process.env,
+		encoding: "utf8",
+	});
+
+	if (result.status === 0) {
+		console.log(`railway link ok for ${cwd}`);
+		return;
+	}
+
+	const details = (result.stderr || result.stdout || "").trim();
+	console.warn(`railway link failed for ${cwd}: ${details || `exit ${result.status}`}`);
+}
+
+function bootstrapRailwayLinks() {
+	if (!railwayProjectId) {
+		console.warn("RAILWAY_PROJECT_ID missing, skipping railway link bootstrap");
+		return;
+	}
+
+	const targets = ["/", "/app", "/workspace"];
+	for (const cwd of targets) {
+		try {
+			mkdirSync(cwd, { recursive: true });
+		} catch {
+			// ignore directory creation failures; link may still succeed
+		}
+		ensureRailwayLink(cwd);
+	}
+}
+
+bootstrapRailwayLinks();
 
 const proxyArgs = [
 	"--host",
