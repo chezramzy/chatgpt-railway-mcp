@@ -1,0 +1,7 @@
+.env
+.git
+node_modules
+
+railway-mcp-server/.git
+railway-mcp-server/node_modules
+railway-mcp-server/dist

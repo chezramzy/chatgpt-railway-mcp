@@ -5,9 +5,15 @@ import { mkdirSync } from "node:fs";
 const publicPort = Number(process.env.PORT || 8000);
 const upstreamPort = Number(process.env.UPSTREAM_PORT || 8081);
 const apiKey = process.env.MCP_PROXY_API_KEY || "";
+const mcpServerCommandRaw =
+	process.env.MCP_SERVER_COMMAND || "railway-mcp-server";
 const railwayProjectId = process.env.RAILWAY_PROJECT_ID || "";
 const railwayEnvironmentId = process.env.RAILWAY_ENVIRONMENT_ID || "";
 const railwayServiceId = process.env.RAILWAY_SERVICE_ID || "";
+const mcpServerCommand = mcpServerCommandRaw
+	.split(/\s+/)
+	.map((part) => part.trim())
+	.filter(Boolean);
 
 function ensureRailwayLink(cwd) {
 	if (!railwayProjectId) {
@@ -71,7 +77,8 @@ if (apiKey) {
 	proxyArgs.push("--apiKey", apiKey);
 }
 
-proxyArgs.push("--", "railway-mcp-server");
+proxyArgs.push("--", ...mcpServerCommand);
+console.log(`starting MCP server command: ${mcpServerCommand.join(" ")}`);
 
 const upstream = spawn("mcp-proxy", proxyArgs, {
 	stdio: "inherit",
