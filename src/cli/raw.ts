@@ -22,6 +22,7 @@ export class RailwayCommandError extends Error {
 	stderr: string;
 	exitCode: number | null;
 	timedOut: boolean;
+	code?: string;
 
 	constructor({
 		command,
@@ -30,6 +31,7 @@ export class RailwayCommandError extends Error {
 		exitCode,
 		timedOut = false,
 		message,
+		code,
 	}: {
 		command: string;
 		stdout: string;
@@ -37,6 +39,7 @@ export class RailwayCommandError extends Error {
 		exitCode: number | null;
 		timedOut?: boolean;
 		message?: string;
+		code?: string;
 	}) {
 		super(
 			message ||
@@ -48,6 +51,7 @@ export class RailwayCommandError extends Error {
 		this.stderr = stderr;
 		this.exitCode = exitCode;
 		this.timedOut = timedOut;
+		this.code = code;
 	}
 }
 
@@ -99,6 +103,7 @@ export const runRailwayArgsCommand = async (
 
 		child.on("error", (error) => {
 			clearTimeout(timer);
+			const spawnError = error as NodeJS.ErrnoException;
 
 			reject(
 				new RailwayCommandError({
@@ -106,7 +111,8 @@ export const runRailwayArgsCommand = async (
 					stdout,
 					stderr,
 					exitCode: null,
-					message: `Failed to run Railway CLI command: ${error.message}`,
+					code: spawnError.code,
+					message: `Failed to run Railway CLI command: ${spawnError.message}`,
 				}),
 			);
 		});

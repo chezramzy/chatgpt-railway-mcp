@@ -89,7 +89,12 @@ export const analyzeRailwayError = (error: unknown, command: string): never => {
 	}
 
 	// Generic error handling
-	if (err.code === "ENOENT") {
+	if (
+		err.code === "ENOENT" ||
+		/(\bspawn\b.*\bENOENT\b)|(\bENOENT\b.*\brailway\b)/i.test(
+			err.message || "",
+		)
+	) {
 		throw new Error(
 			"Railway CLI is not installed. Please install it first: https://docs.railway.com/guides/cli",
 		);
