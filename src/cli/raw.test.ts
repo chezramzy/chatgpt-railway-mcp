@@ -10,9 +10,9 @@ describe("splitCommandArgs", () => {
 	});
 
 	it("parses quoted filter arguments", () => {
-		expect(splitCommandArgs('railway logs --filter "error rate limit"')).toEqual(
-			["railway", "logs", "--filter", "error rate limit"],
-		);
+		expect(
+			splitCommandArgs('railway logs --filter "error rate limit"'),
+		).toEqual(["railway", "logs", "--filter", "error rate limit"]);
 	});
 
 	it("parses single-quoted arguments", () => {
@@ -39,5 +39,13 @@ describe("normalizeRailwayCommand", () => {
 			"link",
 			"api",
 		]);
+	});
+
+	it("preserves quoted filter values as a single argument", () => {
+		expect(
+			normalizeRailwayCommand(
+				'railway logs --deployment --filter "rate limit"',
+			),
+		).toEqual(["logs", "--deployment", "--filter", "rate limit"]);
 	});
 });

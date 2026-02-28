@@ -3,7 +3,11 @@ import {
 	runRailwayCommand,
 	runRailwayJsonCommand,
 } from "./core";
-import { analyzeRailwayError, ERROR_PATTERNS } from "./error-handling";
+import {
+	analyzeRailwayError,
+	classifyRailwayError,
+	ERROR_PATTERNS,
+} from "./error-handling";
 
 export type RailwayProject = {
 	id: string;
@@ -56,15 +60,21 @@ export const getLinkedProjectInfo = async ({
 		const errorMessage = error instanceof Error ? error.message : String(error);
 
 		// Check if it's a "no linked project" error
-		if (ERROR_PATTERNS.NO_LINKED_PROJECT.test(errorMessage)) {
+		if (
+			ERROR_PATTERNS.NO_LINKED_PROJECT.test(errorMessage) ||
+			errorMessage.includes("[NO_LINKED_PROJECT]")
+		) {
 			return {
 				success: false,
 				error:
-					"No Railway project is linked. Run 'railway link' to connect to a project",
+					"[NO_LINKED_PROJECT] No Railway project is linked. Run 'railway link' to connect to a project",
 			};
 		}
 
-		return { success: false, error: errorMessage };
+		return {
+			success: false,
+			error: classifyRailwayError(error, "railway status --json").message,
+		};
 	}
 };
 
@@ -88,6 +98,25 @@ export type CreateProjectOptions = {
 	workspacePath: string;
 };
 
+const getDefaultWorkspace = async (): Promise<string | null> => {
+	try {
+		const whoami = await runRailwayJsonCommand("railway whoami --json");
+		if (!whoami || typeof whoami !== "object") {
+			return null;
+		}
+
+		const workspaces = (whoami as { workspaces?: Array<{ id?: string }> })
+			.workspaces;
+		if (!Array.isArray(workspaces) || workspaces.length === 0) {
+			return null;
+		}
+
+		return workspaces[0]?.id || null;
+	} catch {
+		return null;
+	}
+};
+
 export const createRailwayProject = async ({
 	projectName,
 	workspacePath,
@@ -101,8 +130,11 @@ export const createRailwayProject = async ({
 			return "A Railway project is already linked to this workspace. No new project created.";
 		}
 
+		const workspaceId = await getDefaultWorkspace();
+		const workspaceArg = workspaceId ? ` --workspace ${workspaceId}` : "";
+
 		const { output: initOutput } = await runRailwayCommand(
-			`railway init --name ${projectName}`,
+			`railway init --name ${projectName}${workspaceArg}`,
 			workspacePath,
 		);
 		const { output: linkOutput } = await runRailwayCommand(

@@ -97,6 +97,7 @@ The MCP server automatically detects your Railway CLI version to use the appropr
 The Railway MCP Server provides the following tools for managing your Railway infrastructure:
 
 - `check-railway-status` - Checks that the Railway CLI is installed and that the user is logged in
+- `bootstrap-railway-context` - One-shot preflight returning structured JSON context for LLM startup
 - `list-cli-commands` - Discovers Railway CLI commands/subcommands from `railway --help`
 - `run-railway-command` - Generic passthrough to run any Railway CLI command with custom args
 - Project Management
@@ -118,6 +119,20 @@ The Railway MCP Server provides the following tools for managing your Railway in
   - `get-logs` - Retrieve build or deployment logs for a service
     - **Railway CLI v4.9.0+**: Supports `lines` parameter to limit output and `filter` parameter for searching logs
     - **Older CLI versions**: Will stream logs without filtering capabilities
+
+## LLM Fast Start (2 calls)
+
+To minimize intermediate steps for a first-time LLM:
+
+1. Call `bootstrap-railway-context` with `workspacePath`.
+2. Execute exactly one targeted action based on `recommendedNextActions`.
+
+This preflight returns structured JSON including:
+
+- CLI status (`installed`, `authenticated`, `version`)
+- Link context (`project`, `environment`, `service`)
+- Services, environments, and command capabilities
+- Stable error codes: `CLI_NOT_FOUND`, `CLI_UNAUTHORIZED`, `NO_LINKED_PROJECT`, `SERVICE_NOT_FOUND`, `POLICY_BLOCKED`, `UNKNOWN_ERROR`
 
 ## Development
 
@@ -141,9 +156,9 @@ The Railway MCP Server provides the following tools for managing your Railway in
 
 3. **Start the development server**
 
-   ```bash
-   pnpm dev
-   ```
+  ```bash
+  pnpm dev
+  ```
 
    This command will generate a build under `dist/` and automatically rebuild after making changes.
 
@@ -183,3 +198,10 @@ The Railway MCP Server provides the following tools for managing your Railway in
    ```bash
    claude mcp add railway-mcp-server node /path/to/your-repo/dist/index.js
    ```
+
+### Test pyramid
+
+- `pnpm test:unit` - Unit tests
+- `pnpm test:contract` - Contract tests for structured outputs/error codes
+- `pnpm test:e2e:railway` - Full Railway E2E scenario (real project/service/database flow + cleanup)
+- `pnpm test:all` - Full gate (`typecheck`, unit, contract, e2e)

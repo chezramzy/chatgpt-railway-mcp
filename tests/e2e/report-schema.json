@@ -1,0 +1,71 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"title": "Railway MCP E2E Report",
+	"type": "object",
+	"required": [
+		"startedAt",
+		"finishedAt",
+		"durationMs",
+		"status",
+		"workspacePath",
+		"prefix",
+		"steps",
+		"cleanup"
+	],
+	"properties": {
+		"startedAt": {
+			"type": "string"
+		},
+		"finishedAt": {
+			"type": "string"
+		},
+		"durationMs": {
+			"type": "integer"
+		},
+		"status": {
+			"type": "string",
+			"enum": ["success", "failed"]
+		},
+		"workspacePath": {
+			"type": "string"
+		},
+		"prefix": {
+			"type": "string"
+		},
+		"project": {
+			"type": "object",
+			"properties": {
+				"name": { "type": "string" },
+				"id": { "type": "string" }
+			},
+			"additionalProperties": true
+		},
+		"steps": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"required": ["name", "ok", "durationMs"],
+				"properties": {
+					"name": { "type": "string" },
+					"ok": { "type": "boolean" },
+					"durationMs": { "type": "integer" },
+					"error": { "type": "string" },
+					"details": {}
+				},
+				"additionalProperties": true
+			}
+		},
+		"cleanup": {
+			"type": "object",
+			"required": ["attempted", "ok"],
+			"properties": {
+				"attempted": { "type": "boolean" },
+				"ok": { "type": "boolean" },
+				"method": { "type": "string" },
+				"error": { "type": "string" }
+			},
+			"additionalProperties": true
+		}
+	},
+	"additionalProperties": true
+}

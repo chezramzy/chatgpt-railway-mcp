@@ -1,5 +1,5 @@
 import { checkRailwayCliStatus, runRailwayCommand } from "./core";
-import { analyzeRailwayError } from "./error-handling";
+import { analyzeRailwayError, classifyRailwayError } from "./error-handling";
 import { getLinkedProjectInfo } from "./projects";
 
 export type GetServicesOptions = {
@@ -36,8 +36,10 @@ export const getRailwayServices = async ({
 
 		return { success: true, services };
 	} catch (error: unknown) {
-		const errorMessage = error instanceof Error ? error.message : String(error);
-		return { success: false, error: errorMessage };
+		return {
+			success: false,
+			error: classifyRailwayError(error, "railway status --json").message,
+		};
 	}
 };
 

@@ -1,3 +1,4 @@
+export { bootstrapRailwayContextTool } from "./bootstrap-railway-context";
 export { checkRailwayStatusTool } from "./check-railway-status";
 export { createEnvironmentTool } from "./create-environment";
 export { createProjectAndLinkTool } from "./create-project-and-link";

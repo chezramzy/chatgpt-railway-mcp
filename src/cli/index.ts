@@ -19,3 +19,4 @@ export {
 export { normalizeRailwayCommand, runRailwayArgsCommand } from "./raw";
 export { getRailwayServices, linkRailwayService } from "./services";
 export { listRailwayVariables, setRailwayVariables } from "./variables";
+export { getCliFeatureSupport, getRailwayVersion } from "./version";

@@ -32,7 +32,11 @@
     "format": "biome format --write src",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "test:unit": "vitest run --exclude \"**/*.contract.test.ts\"",
+    "test:contract": "vitest run contract",
+    "test:e2e:railway": "node tests/e2e/llm-first-runner.mjs",
+    "test:all": "pnpm typecheck && pnpm test:unit && pnpm test:contract && pnpm test:e2e:railway"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.17.1",
@@ -49,7 +53,8 @@
     "@types/semver": "^7.7.1",
     "tsdown": "^0.15.4",
     "typescript": "^5.9.2",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "pg": "^8.16.3"
   },
   "engines": {
     "node": ">=20.0.0"
